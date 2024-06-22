@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Message History</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: orange;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .burger {
+            display: none;
+            cursor: pointer;
+            font-size: 24px;
+            margin-left: auto;
+        }
+        .burger div {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 5px;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            transition: all 0.3s ease;
+        }
+        .nav-links li {
+            margin: 0 15px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .logout-btn {
+            background-color: #ff8800;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 18px;
+        }
+        .logout-btn:hover {
+            background-color: darkorange;
+        }
+        @media screen and (max-width: 768px) {
+            .burger {
+                display: block;
+            }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                background-color: orange;
+                position: absolute;
+                top: 50px;
+                left: 0;
+                padding: 0;
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .nav-links li {
+                margin: 0;
+                padding: 10px;
+                text-align: center;
+                width: 100%;
+            }
+        }
+        .content {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .message {
+            border-bottom: 1px solid #ccc;
+            padding: 15px 0;
+        }
+        .message:last-child {
+            border-bottom: none;
+        }
+        .message h3 {
+            margin: 0;
+            color: #333;
+        }
+        .message p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .message img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>The History</h1>
+        <div class="burger" id="burger">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="Bmi.html">BMI Page</a></li>
+            <li><a href="Message.html">Message Page</a></li>
+            <li><a href="History.html">History Page</a></li>
+        </ul>
+        <button class="logout-btn" id="logout-btn">Logout</button>
+    </div>
+    <div class="content" id="messageHistory">
+        <!-- Messages will be dynamically inserted here -->
+    </div>
+
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCK5bnQc3yYc7cU2UdpNaBy2btHyAczXiY",
+            authDomain: "lossweight-a9e39.firebaseapp.com",
+            projectId: "lossweight-a9e39",
+            storageBucket: "lossweight-a9e39.appspot.com",
+            messagingSenderId: "814223253419",
+            appId: "1:814223253419:web:b5c00514f8d689662b7cee"
+        };
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const burger = document.getElementById('burger');
+            const navLinks = document.getElementById('nav-links');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            burger.addEventListener('click', function () {
+                navLinks.classList.toggle('active');
+            });
+
+            logoutBtn.addEventListener('click', function () {
+                alert("Logged out successfully!");
+                window.location.href = "Login.html"; // Redirect to login page
+            });
+
+            // Fetch and display messages from Firebase
+            const messageHistory = document.getElementById('messageHistory');
+            const messagesRef = firebase.database().ref('messages');
+
+            messagesRef.on('value', (snapshot) => {
+                messageHistory.innerHTML = ''; // Clear existing messages
+
+                snapshot.forEach((childSnapshot) => {
+                    const messageData = childSnapshot.val();
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message';
+
+                    let photoElement = '';
+                    if (messageData.photo) {
+                        photoElement = `<img src="${messageData.photo}" alt="User Photo">`;
+                    }
+
+                    messageElement.innerHTML = `
+                        <h3>${messageData.title}</h3>
+                        <p><strong>${messageData.username}</strong> - ${new Date(messageData.timestamp).toLocaleString()}</p>
+                        <p>${messageData.message}</p>
+                        ${photoElement}
+                    `;
+                    messageHistory.appendChild(messageElement);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

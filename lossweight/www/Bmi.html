@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Loss Weight App</title>
+    <link rel="stylesheet" type="text/css" href="css/Register.css">
+    <style>
+        body {
+            background-color: white;
+            color: rgb(255, 136, 0);
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin: 50px auto;
+            width: 300px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group input {
+            width: 50%;
+            padding: 10px;
+            font-size: 20px;
+        }
+        .input-group span {
+            font-size: 20px;
+        }
+        #bmi-result {
+            font-size: 30px;
+            margin-top: 20px;
+        }
+        #bmi-status {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Calculate Your BMI</h1>
+        <div class="burger" id="burger">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="Bmi.html">BMI Page</a></li>
+            <li><a href="Message.html">Message Page</a></li>
+            <li><a href="History.html">History Page</a></li>
+        </ul>
+        <button class="logout-btn" id="logout-btn">Logout</button>
+    </div>
+    <div class="container">
+        <div class="input-group">
+            <label>Height</label><br>
+            <input type="number" id="height" placeholder="Height" /><span> cm</span>
+        </div>
+        <div class="input-group">
+            <label>Weight</label><br>
+            <input type="number" id="weight" placeholder="Weight" /><span> kg</span>
+        </div>
+        <div id="bmi-result">BMI = 0</div>
+        <div id="bmi-status">Normal</div>
+    </div>
+
+    <script>
+        function calculateBMI() {
+            let height = document.getElementById('height').value;
+            let weight = document.getElementById('weight').value;
+
+            if (height > 0 && weight > 0) {
+                let bmi = (weight / ((height / 100) * (height / 100))).toFixed(2);
+                document.getElementById('bmi-result').innerText = 'BMI = ' + bmi;
+                document.getElementById('bmi-status').innerText = getBMIStatus(bmi);
+            } else {
+                document.getElementById('bmi-result').innerText = 'BMI = 0';
+                document.getElementById('bmi-status').innerText = '';
+            }
+        }
+
+        function getBMIStatus(bmi) {
+            if (bmi < 18.5) return 'Underweight';
+            if (bmi < 24.9) return 'Normal';
+            if (bmi < 29.9) return 'Overweight';
+            return 'Obese';
+        }
+
+        document.getElementById('height').addEventListener('input', calculateBMI);
+        document.getElementById('weight').addEventListener('input', calculateBMI);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const burger = document.getElementById('burger');
+            const navLinks = document.getElementById('nav-links');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            burger.addEventListener('click', function () {
+                navLinks.classList.toggle('active');
+            });
+
+            logoutBtn.addEventListener('click', function () {
+                // Add your logout logic here (e.g., clear session, local storage, etc.)
+                alert("Logged out successfully!");
+                window.location.href = "Login.html"; // Redirect to login page
+            });
+        });
+    </script>
+</body>
+</html>

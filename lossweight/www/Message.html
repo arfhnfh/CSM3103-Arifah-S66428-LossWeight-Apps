@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Create a New Message</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: orange;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        .nav {
+            display: flex;
+            align-items: center;
+        }
+        .burger {
+            display: none;
+            cursor: pointer;
+            font-size: 24px;
+            margin-left: auto;
+        }
+        .burger div {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 5px;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            transition: all 0.3s ease;
+        }
+        .nav-links li {
+            margin: 0 15px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .logout-btn {
+            background-color: #ff8800;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 18px;
+        }
+        .logout-btn:hover {
+            background-color: darkorange;
+        }
+        @media screen and (max-width: 768px) {
+            .burger {
+                display: block;
+            }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                background-color: orange;
+                position: absolute;
+                top: 50px;
+                left: 0;
+                padding: 0;
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .nav-links li {
+                margin: 0;
+                padding: 10px;
+                text-align: center;
+                width: 100%;
+            }
+        }
+        .content {
+            padding: 20px;
+        }
+        form {
+            max-width: 300px;
+            margin: auto;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: orange;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        input[type="submit"]:hover {
+            background-color: darkorange;
+        }
+        p {
+            text-align: center;
+        }
+        a {
+            color: orange;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Write and Share Your Experience</h1>
+        <div class="burger" id="burger">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="Bmi.html">BMI Page</a></li>
+            <li><a href="Message.html">Message Page</a></li>
+            <li><a href="History.html">History Page</a></li>
+        </ul>
+        <button class="logout-btn" id="logout-btn">Logout</button>
+    </div>
+    <div class="content">
+        <h2>Create a New Message</h2>
+        <form id="messageForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" required></textarea>
+            <label for="photo">Add Photo:</label>
+            <input type="file" id="photo" name="photo">
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCK5bnQc3yYc7cU2UdpNaBy2btHyAczXiY",
+            authDomain: "lossweight-a9e39.firebaseapp.com",
+            projectId: "lossweight-a9e39",
+            storageBucket: "lossweight-a9e39.appspot.com",
+            messagingSenderId: "814223253419",
+            appId: "1:814223253419:web:b5c00514f8d689662b7cee"
+        };
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const burger = document.getElementById('burger');
+            const navLinks = document.getElementById('nav-links');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            burger.addEventListener('click', function () {
+                navLinks.classList.toggle('active');
+            });
+
+            logoutBtn.addEventListener('click', function () {
+                alert("Logged out successfully!");
+                window.location.href = "Login.html"; // Redirect to login page
+            });
+
+            document.getElementById('messageForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const username = document.getElementById('username').value;
+                const title = document.getElementById('title').value;
+                const message = document.getElementById('message').value;
+                const photo = document.getElementById('photo').files[0];
+
+                // Create a unique key for the new message
+                const newMessageKey = firebase.database().ref().child('messages').push().key;
+
+                if (photo) {
+                    const storageRef = firebase.storage().ref('photos/' + newMessageKey + '/' + photo.name);
+                    const uploadTask = storageRef.put(photo);
+
+                    uploadTask.on('state_changed', 
+                        function(snapshot) {
+                            // Observe state change events such as progress, pause, and resume
+                        }, 
+                        function(error) {
+                            console.error("Error uploading photo: ", error);
+                        }, 
+                        function() {
+                            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                                const messageData = {
+                                    username: username,
+                                    title: title,
+                                    message: message,
+                                    photo: downloadURL,
+                                    timestamp: new Date().toISOString()
+                                };
+
+                                // Save the message in the database
+                                firebase.database().ref('messages/' + newMessageKey).set(messageData)
+                                    .then(() => {
+                                        alert("Message submitted!");
+                                        window.location.href = "History.html"; // Redirect to history page
+                                    })
+                                    .catch(error => {
+                                        console.error("Error submitting message: ", error);
+                                    });
+                            });
+                        }
+                    );
+                } else {
+                    const messageData = {
+                        username: username,
+                        title: title,
+                        message: message,
+                        photo: null,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    // Save the message in the database
+                    firebase.database().ref('messages/' + newMessageKey).set(messageData)
+                        .then(() => {
+                            alert("Message submitted!");
+                            window.location.href = "History.html"; // Redirect to history page
+                        })
+                        .catch(error => {
+                            console.error("Error submitting message: ", error);
+                        });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
